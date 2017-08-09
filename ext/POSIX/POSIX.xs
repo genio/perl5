@@ -1,4 +1,5 @@
 #define PERL_EXT_POSIX
+#define PERL_EXT
 
 #ifdef NETWARE
 	#define _POSIX_
@@ -2123,7 +2124,6 @@ localeconv()
 	localeconv(); /* A stub to call not_here(). */
 #else
 	struct lconv *lcbuf;
-
         DECLARATION_FOR_LC_NUMERIC_MANIPULATION;
 
         /* localeconv() deals with both LC_NUMERIC and LC_MONETARY, but
@@ -2143,6 +2143,8 @@ localeconv()
 
 	RETVAL = newHV();
 	sv_2mortal((SV*)RETVAL);
+
+        LOCALE_LOCK;
 
         lcbuf = localeconv();
 
@@ -2197,6 +2199,7 @@ localeconv()
             }
 	}
 
+        LOCALE_UNLOCK;
         RESTORE_LC_NUMERIC_STANDARD();
 #endif  /* HAS_LOCALECONV */
     OUTPUT:
@@ -3255,6 +3258,12 @@ int
 mblen(s, n)
 	char *		s
 	size_t		n
+    CODE:
+        LOCALE_LOCK;
+        RETVAL = mblen(s, n);
+        LOCALE_UNLOCK;
+    OUTPUT:
+        RETVAL
 
 size_t
 mbstowcs(s, pwcs, n)
@@ -3267,6 +3276,12 @@ mbtowc(pwc, s, n)
 	wchar_t *	pwc
 	char *		s
 	size_t		n
+    CODE:
+        LOCALE_LOCK;
+        RETVAL = mbtowc(pwc, s, n);
+        LOCALE_UNLOCK;
+    OUTPUT:
+        RETVAL
 
 int
 wcstombs(s, pwcs, n)
@@ -3278,6 +3293,12 @@ int
 wctomb(s, wchar)
 	char *		s
 	wchar_t		wchar
+    CODE:
+        LOCALE_LOCK;
+        RETVAL = wctomb(s, wchar);
+        LOCALE_UNLOCK;
+    OUTPUT:
+        RETVAL
 
 int
 strcoll(s1, s2)
