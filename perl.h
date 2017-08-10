@@ -4997,7 +4997,7 @@ typedef char*   (*re_intuit_start_t) (pTHX_ regexp *prog, SV *sv,
 typedef SV*	(*re_intuit_string_t) (pTHX_ regexp *prog);
 typedef void	(*regfree_t) (pTHX_ struct regexp* r);
 typedef regexp* (*regdupe_t) (pTHX_ const regexp* r, CLONE_PARAMS *param);
-typedef I32     (*re_fold_t)(const char *, char const *, I32);
+typedef bool    (*re_fold_t)(const char *, char const *, SSize_t);
 
 typedef void (*DESTRUCTORFUNC_NOCONTEXT_t) (void*);
 typedef void (*DESTRUCTORFUNC_t) (pTHX_ void*);

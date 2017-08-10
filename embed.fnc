@@ -684,20 +684,20 @@ ApbmM	|SV**	|hv_store_flags	|NULLOK HV *hv|NULLOK const char *key \
 				|I32 klen|NULLOK SV *val|U32 hash|int flags
 Amd	|void	|hv_undef	|NULLOK HV *hv
 poX	|void	|hv_undef_flags	|NULLOK HV *hv|U32 flags
-AmP	|I32	|ibcmp		|NN const char* a|NN const char* b|I32 len
-Ainp	|I32	|foldEQ		|NN const char* a|NN const char* b|I32 len
-AmP	|I32	|ibcmp_locale	|NN const char* a|NN const char* b|I32 len
-Ainp	|I32	|foldEQ_locale	|NN const char* a|NN const char* b|I32 len
-Am	|I32	|ibcmp_utf8	|NN const char *s1|NULLOK char **pe1|UV l1 \
+AmP	|bool	|ibcmp		|NN const char* a|NN const char* b|SSize_t len
+Ainp	|bool	|foldEQ		|NN const char* a|NN const char* b|SSize_t len
+AmP	|bool	|ibcmp_locale	|NN const char* a|NN const char* b|SSize_t len
+Ainp	|bool	|foldEQ_locale	|NN const char* a|NN const char* b|SSize_t len
+Am	|bool	|ibcmp_utf8	|NN const char *s1|NULLOK char **pe1|UV l1 \
 				|bool u1|NN const char *s2|NULLOK char **pe2 \
 				|UV l2|bool u2
-Amd	|I32	|foldEQ_utf8	|NN const char *s1|NULLOK char **pe1|UV l1 \
+Amd	|bool	|foldEQ_utf8	|NN const char *s1|NULLOK char **pe1|UV l1 \
 				|bool u1|NN const char *s2|NULLOK char **pe2 \
 				|UV l2|bool u2
-AMp	|I32	|foldEQ_utf8_flags |NN const char *s1|NULLOK char **pe1|UV l1 \
+AMp	|bool	|foldEQ_utf8_flags |NN const char *s1|NULLOK char **pe1|UV l1 \
 				|bool u1|NN const char *s2|NULLOK char **pe2 \
 				|UV l2|bool u2|U32 flags
-Ainp	|I32	|foldEQ_latin1	|NN const char* a|NN const char* b|I32 len
+Ainp	|bool	|foldEQ_latin1	|NN const char* a|NN const char* b|SSize_t len
 #if defined(PERL_IN_DOIO_C)
 sR	|bool	|ingroup	|Gid_t testgid|bool effective
 #endif
@@ -1794,8 +1794,8 @@ p	|void	|utilize	|int aver|I32 floor|NULLOK OP* version|NN OP* idop|NULLOK OP* a
 ApM	|void	|_force_out_malformed_utf8_message			    \
 		|NN const U8 *const p|NN const U8 * const e|const U32 flags \
 		|const bool die_here
-Ap	|U8*	|utf16_to_utf8	|NN U8* p|NN U8 *d|I32 bytelen|NN I32 *newlen
-Ap	|U8*	|utf16_to_utf8_reversed|NN U8* p|NN U8 *d|I32 bytelen|NN I32 *newlen
+Ap	|U8*	|utf16_to_utf8	|NN U8* p|NN U8 *d|SSize_t bytelen|NN SSize_t *newlen
+Ap	|U8*	|utf16_to_utf8_reversed|NN U8* p|NN U8 *d|SSize_t bytelen|NN SSize_t *newlen
 AdpPR	|STRLEN	|utf8_length	|NN const U8* s|NN const U8 *e
 AipdR	|IV	|utf8_distance	|NN const U8 *a|NN const U8 *b
 AipdRn	|U8*	|utf8_hop	|NN const U8 *s|SSize_t off

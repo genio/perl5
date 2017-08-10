@@ -2370,7 +2370,7 @@ Perl_bytes_to_utf8(pTHX_ const U8 *s, STRLEN *lenp)
  * We optimize for native, for obvious reasons. */
 
 U8*
-Perl_utf16_to_utf8(pTHX_ U8* p, U8* d, I32 bytelen, I32 *newlen)
+Perl_utf16_to_utf8(pTHX_ U8* p, U8* d, SSize_t bytelen, SSize_t *newlen)
 {
     U8* pend;
     U8* dstart = d;
@@ -2447,7 +2447,7 @@ Perl_utf16_to_utf8(pTHX_ U8* p, U8* d, I32 bytelen, I32 *newlen)
 /* Note: this one is slightly destructive of the source. */
 
 U8*
-Perl_utf16_to_utf8_reversed(pTHX_ U8* p, U8* d, I32 bytelen, I32 *newlen)
+Perl_utf16_to_utf8_reversed(pTHX_ U8* p, U8* d, SSize_t bytelen, SSize_t *newlen)
 {
     U8* s = (U8*)p;
     U8* const send = s + bytelen;
@@ -5447,7 +5447,7 @@ L<http://www.unicode.org/unicode/reports/tr21/> (Case Mappings).
  *  FOLDEQ_S2_ALREADY_FOLDED  Similarly.
  *  FOLDEQ_S2_FOLDS_SANE
  */
-I32
+bool
 Perl_foldEQ_utf8_flags(pTHX_ const char *s1, char **pe1, UV l1, bool u1,
                              const char *s2, char **pe2, UV l2, bool u2,
                              U32 flags)

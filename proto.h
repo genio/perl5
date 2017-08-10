@@ -41,9 +41,9 @@ PERL_CALLCONV void*	Perl_Slab_Alloc(pTHX_ size_t sz)
 PERL_CALLCONV void	Perl_Slab_Free(pTHX_ void *op);
 #define PERL_ARGS_ASSERT_SLAB_FREE	\
 	assert(op)
-PERL_CALLCONV char *	Perl__byte_dump_string(pTHX_ const U8 * s, const STRLEN len, const bool format);
+PERL_CALLCONV char *	Perl__byte_dump_string(pTHX_ const U8 * const start, const STRLEN len, const bool format);
 #define PERL_ARGS_ASSERT__BYTE_DUMP_STRING	\
-	assert(s)
+	assert(start)
 PERL_CALLCONV void	Perl__force_out_malformed_utf8_message(pTHX_ const U8 *const p, const U8 * const e, const U32 flags, const bool die_here);
 #define PERL_ARGS_ASSERT__FORCE_OUT_MALFORMED_UTF8_MESSAGE	\
 	assert(p); assert(e)
@@ -913,22 +913,22 @@ PERL_CALLCONV char*	Perl_find_script(pTHX_ const char *scriptname, bool dosearch
 #define PERL_ARGS_ASSERT_FIND_SCRIPT	\
 	assert(scriptname)
 #ifndef PERL_NO_INLINE_FUNCTIONS
-PERL_STATIC_INLINE I32	Perl_foldEQ(const char* a, const char* b, I32 len);
+PERL_STATIC_INLINE bool	Perl_foldEQ(const char* a, const char* b, SSize_t len);
 #define PERL_ARGS_ASSERT_FOLDEQ	\
 	assert(a); assert(b)
 #endif
 #ifndef PERL_NO_INLINE_FUNCTIONS
-PERL_STATIC_INLINE I32	Perl_foldEQ_latin1(const char* a, const char* b, I32 len);
+PERL_STATIC_INLINE bool	Perl_foldEQ_latin1(const char* a, const char* b, SSize_t len);
 #define PERL_ARGS_ASSERT_FOLDEQ_LATIN1	\
 	assert(a); assert(b)
 #endif
 #ifndef PERL_NO_INLINE_FUNCTIONS
-PERL_STATIC_INLINE I32	Perl_foldEQ_locale(const char* a, const char* b, I32 len);
+PERL_STATIC_INLINE bool	Perl_foldEQ_locale(const char* a, const char* b, SSize_t len);
 #define PERL_ARGS_ASSERT_FOLDEQ_LOCALE	\
 	assert(a); assert(b)
 #endif
-/* PERL_CALLCONV I32	foldEQ_utf8(pTHX_ const char *s1, char **pe1, UV l1, bool u1, const char *s2, char **pe2, UV l2, bool u2); */
-PERL_CALLCONV I32	Perl_foldEQ_utf8_flags(pTHX_ const char *s1, char **pe1, UV l1, bool u1, const char *s2, char **pe2, UV l2, bool u2, U32 flags);
+/* PERL_CALLCONV bool	foldEQ_utf8(pTHX_ const char *s1, char **pe1, UV l1, bool u1, const char *s2, char **pe2, UV l2, bool u2); */
+PERL_CALLCONV bool	Perl_foldEQ_utf8_flags(pTHX_ const char *s1, char **pe1, UV l1, bool u1, const char *s2, char **pe2, UV l2, bool u2, U32 flags);
 #define PERL_ARGS_ASSERT_FOLDEQ_UTF8_FLAGS	\
 	assert(s1); assert(s2)
 PERL_CALLCONV char*	Perl_form(pTHX_ const char* pat, ...)
@@ -1327,15 +1327,15 @@ PERL_CALLCONV SV**	Perl_hv_store_flags(pTHX_ HV *hv, const char *key, I32 klen, 
 #endif
 /* PERL_CALLCONV void	hv_undef(pTHX_ HV *hv); */
 PERL_CALLCONV void	Perl_hv_undef_flags(pTHX_ HV *hv, U32 flags);
-/* PERL_CALLCONV I32	ibcmp(pTHX_ const char* a, const char* b, I32 len)
+/* PERL_CALLCONV bool	ibcmp(pTHX_ const char* a, const char* b, SSize_t len)
 			__attribute__warn_unused_result__
 			__attribute__pure__; */
 
-/* PERL_CALLCONV I32	ibcmp_locale(pTHX_ const char* a, const char* b, I32 len)
+/* PERL_CALLCONV bool	ibcmp_locale(pTHX_ const char* a, const char* b, SSize_t len)
 			__attribute__warn_unused_result__
 			__attribute__pure__; */
 
-/* PERL_CALLCONV I32	ibcmp_utf8(pTHX_ const char *s1, char **pe1, UV l1, bool u1, const char *s2, char **pe2, UV l2, bool u2); */
+/* PERL_CALLCONV bool	ibcmp_utf8(pTHX_ const char *s1, char **pe1, UV l1, bool u1, const char *s2, char **pe2, UV l2, bool u2); */
 PERL_CALLCONV void	Perl_init_argv_symbols(pTHX_ int argc, char **argv);
 #define PERL_ARGS_ASSERT_INIT_ARGV_SYMBOLS	\
 	assert(argv)
@@ -3577,10 +3577,10 @@ PERL_CALLCONV void	Perl_unsharepvn(pTHX_ const char* sv, I32 len, U32 hash);
 PERL_CALLCONV SV*	Perl_upg_version(pTHX_ SV *ver, bool qv);
 #define PERL_ARGS_ASSERT_UPG_VERSION	\
 	assert(ver)
-PERL_CALLCONV U8*	Perl_utf16_to_utf8(pTHX_ U8* p, U8 *d, I32 bytelen, I32 *newlen);
+PERL_CALLCONV U8*	Perl_utf16_to_utf8(pTHX_ U8* p, U8 *d, SSize_t bytelen, SSize_t *newlen);
 #define PERL_ARGS_ASSERT_UTF16_TO_UTF8	\
 	assert(p); assert(d); assert(newlen)
-PERL_CALLCONV U8*	Perl_utf16_to_utf8_reversed(pTHX_ U8* p, U8 *d, I32 bytelen, I32 *newlen);
+PERL_CALLCONV U8*	Perl_utf16_to_utf8_reversed(pTHX_ U8* p, U8 *d, SSize_t bytelen, SSize_t *newlen);
 #define PERL_ARGS_ASSERT_UTF16_TO_UTF8_REVERSED	\
 	assert(p); assert(d); assert(newlen)
 #ifndef PERL_NO_INLINE_FUNCTIONS
