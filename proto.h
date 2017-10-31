@@ -3642,9 +3642,6 @@ PERL_CALLCONV UV	Perl_utf8_to_uvuni_buf(pTHX_ const U8 *s, const U8 *send, STRLE
 PERL_CALLCONV UV	Perl_utf8n_to_uvchr(pTHX_ const U8 *s, STRLEN curlen, STRLEN *retlen, const U32 flags);
 #define PERL_ARGS_ASSERT_UTF8N_TO_UVCHR	\
 	assert(s)
-PERL_CALLCONV UV	Perl_utf8n_to_uvchr_error(pTHX_ const U8 *s, STRLEN curlen, STRLEN *retlen, const U32 flags, U32 * errors);
-#define PERL_ARGS_ASSERT_UTF8N_TO_UVCHR_ERROR	\
-	assert(s)
 PERL_CALLCONV UV	Perl_utf8n_to_uvuni(pTHX_ const U8 *s, STRLEN curlen, STRLEN *retlen, U32 flags);
 #define PERL_ARGS_ASSERT_UTF8N_TO_UVUNI	\
 	assert(s)
@@ -3787,6 +3784,16 @@ STATIC int	S_sv_2iuv_non_preserve(pTHX_ SV *const sv);
 	assert(sv)
 #    endif
 #  endif
+#endif
+#if !(defined(EBCDIC))
+PERL_CALLCONV UV	Perl__utf8n_to_uvchr_error(pTHX_ const U8 *s, STRLEN curlen, STRLEN *retlen, const U32 flags, U32 * errors, const UV codepoint);
+#define PERL_ARGS_ASSERT__UTF8N_TO_UVCHR_ERROR	\
+	assert(s)
+#ifndef PERL_NO_INLINE_FUNCTIONS
+PERL_STATIC_INLINE UV	Perl_utf8n_to_uvchr_error(pTHX_ const U8 *s, STRLEN curlen, STRLEN *retlen, const U32 flags, U32 * errors);
+#define PERL_ARGS_ASSERT_UTF8N_TO_UVCHR_ERROR	\
+	assert(s)
+#endif
 #endif
 #if !(defined(HAS_MEMMEM))
 PERL_CALLCONV char*	Perl_ninstr(const char* big, const char* bigend, const char* little, const char* lend)
@@ -4192,6 +4199,11 @@ STATIC void	S_dump_regex_sets_structures(pTHX_ RExC_state_t *pRExC_state, AV * s
 PERL_CALLCONV void	Perl_dump_sv_child(pTHX_ SV *sv);
 #define PERL_ARGS_ASSERT_DUMP_SV_CHILD	\
 	assert(sv)
+#endif
+#if defined(EBCDIC)
+PERL_CALLCONV UV	Perl_utf8n_to_uvchr_error(pTHX_ const U8 *s, STRLEN curlen, STRLEN *retlen, const U32 flags, U32 * errors);
+#define PERL_ARGS_ASSERT_UTF8N_TO_UVCHR_ERROR	\
+	assert(s)
 #endif
 #if defined(HAS_MEMMEM)
 PERL_CALLCONV char*	Perl_ninstr(const char* big, const char* bigend, const char* little, const char* lend)

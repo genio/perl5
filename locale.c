@@ -2703,7 +2703,7 @@ S_print_bytes_for_locale(pTHX_
 
     while (t < e) {
         UV cp = (is_utf8)
-                ?  utf8_to_uvchr_buf((U8 *) t, e, NULL)
+                ?  utf8_to_uvchr_buf((U8 *) t, (U8 *) e, NULL)
                 : * (U8 *) t;
         if (isPRINT(cp)) {
             if (! prev_was_printable) {
