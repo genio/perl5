@@ -3455,6 +3455,9 @@ static int store_hook(
     int clone = cxt->optype & ST_CLONE;
     char mtype = '\0';		/* for blessed ref to tied structures */
     unsigned char eflags = '\0'; /* used when object type is SHT_EXTRA */
+#ifdef HAS_U64
+    int need_large_oids = 0;
+#endif
 
     TRACEME(("store_hook, classname \"%s\", tagged #%d", HvNAME_get(pkg), (int)cxt->tagnum));
 
@@ -3702,6 +3705,10 @@ static int store_hook(
         ary[i] = tag;
         TRACEME(("listed object %d at 0x%" UVxf " is tag #%" UVuf,
                  i-1, PTR2UV(xsv), PTR2UV(tag)));
+#ifdef HAS_U64
+       if ((U32)PTR2TAG(tag) != PTR2TAG(tag))
+           need_large_oids = 1;
+#endif
     }
 
     /*
@@ -3801,12 +3808,24 @@ static int store_hook(
         /*
          * NOTA BENE, for 64-bit machines: the ary[i] below does not yield a
          * real pointer, rather a tag number, well under the 32-bit limit.
+         * Which is wrong... if we have more than 2**32 SVs we can get ids over
+         * the 32-bit limit.
          */
 
         for (i = 1; i < count; i++) {
-            I32 tagval = htonl(LOW_32BITS(ary[i]));
-            WRITE_I32(tagval);
-            TRACEME(("object %d, tag #%d", i-1, ntohl(tagval)));
+#ifdef HAS_U64_INCOMPLETE
+            if (need_large_oids) {
+                ntag_t tag = PTR2TAG(ary[i]);
+                W64LEN(tag);
+                TRACEME(("object %d, tag #%" UVdf, i-1, ntohl(tagval), (UV)tag));
+            }
+            else
+#endif
+            {
+                I32 tagval = htonl(LOW_32BITS(ary[i]));
+                WRITE_I32(tagval);
+                TRACEME(("object %d, tag #%d", i-1, ntohl(tagval)));
+            }
         }
     }
 
