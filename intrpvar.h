@@ -646,6 +646,7 @@ PERLVAR(I, GCB_invlist, SV *)
 PERLVAR(I, LB_invlist, SV *)
 PERLVAR(I, SB_invlist, SV *)
 PERLVAR(I, WB_invlist, SV *)
+PERLVAR(I, Script_invlist, SV *)
 PERLVAR(I, Assigned_invlist, SV *)
 PERLVAR(I, seen_deprecated_macro, HV *)
 

@@ -150,6 +150,8 @@ NREFFL      REF,        no-sv 1 V ; Match already matched string, folded in loc.
 NREFFU      REF,        num   1 V ; Match already matched string, folded using unicode rules for non-utf8
 NREFFA      REF,        num   1 V ; Match already matched string, folded using unicode rules for non-utf8, no mixing ASCII, non-ASCII
 
+REFSR      REF,         num   1 V ; Match a script run
+
 #*Support for long RE
 LONGJMP     LONGJMP,    off 1 . 1 ; Jump far away.
 BRANCHJ     BRANCHJ,    off 1 V 1 ; BRANCH with long offset.

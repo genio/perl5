@@ -72,6 +72,8 @@ The metacharacters are
 
     {}[]()^$.|*+?\
 
+XXX #
+
 A metacharacter can be matched by putting a backslash before it:
 
     "2+2=4" =~ /2+2/;    # doesn't match, + is a metacharacter

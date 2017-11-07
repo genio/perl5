@@ -6649,6 +6649,91 @@ S_regmatch(pTHX_ regmatch_info *reginfo, char *startpos, regnode *prog)
 	    }
 	    goto do_nref_ref_common;
 
+	case REFSR:  /*  Script run   */
+          {
+            UV script_zero = 0;
+            const char * strend;
+            Size_t len;
+            UV cp;
+            SC_enum script_of_run  = SC_Unknown;
+            SC_enum script_of_char = SC_Unknown;
+            bool is_first_char = TRUE;
+            SV * decimals_invlist = PL_XPosix_ptrs[_CC_DIGIT];
+            UV * decimals_array = invlist_array(decimals_invlist);
+
+	    n = ARG(scan);  /* which paren pair */
+	    ln = rex->offs[n].start;
+	    endref = rex->offs[n].end;
+	    reginfo->poscache_iter = reginfo->poscache_maxiter; /* Void cache */
+	    if (rex->lastparen < n || ln == -1 || endref == -1)
+		sayNO;			/* Do not match unless seen CLOSEn. */
+	    if (endref - ln <= 1) {
+		break;
+            }
+
+	    s = reginfo->strbeg + ln;
+            strend = reginfo->strbeg + endref;
+
+            while (s < strend) {
+                if (utf8_target) {
+                    cp = utf8_to_uvchr_buf((U8 *) s, strend - s, &len);
+                    s += len;
+                }
+                else {
+                    cp = *(s++);
+                }
+
+                /* If is within 9 code points of the script's zero, it also is
+                 * a digit in that script */
+                if (script_zero && cp >= script_zero && cp - script_zero <= 9) {
+                    continue;
+                }
+
+                script_of_char = Script_invmap[_invlist_search(PL_Script_invlist, cp)];
+
+                if (script_of_char == SC_Unknown) {
+
+                    /* We arbitrarily don't accept runs of unassigned characters */
+                    sayNO;
+                }
+                else if (script_of_char == SC_Inherited) {
+                    if (is_first_char) {
+                        sayNO;  /* XXX Unsure */
+                    }
+                    
+                    continue;
+                }
+
+                SSize_t range_zero_index;
+                range_zero_index = _invlist_search(decimals_invlist, cp);
+                if (range_zero_index >= 0 && ELEMENT_RANGE_MATCHES_INVLIST(range_zero_index)) {
+
+                    /* Above, we checked if this code point is 0-9 of the
+                     * script's zero.  Since it wasn't that means that this
+                     * digit isn't in that range */
+                    if (script_zero) {
+                        sayNO;
+                    }
+
+                    script_zero = decimals_array[range_zero_index];
+                }
+
+                if (is_first_char) {
+                    if (script_of_char != SC_Common) {
+                        script_of_run = script_of_char;
+                        is_first_char = FALSE;
+                    }
+                }
+                else if (   script_of_char != script_of_run
+                         && script_of_char != SC_Common)
+                {
+                    sayNO;
+                }
+            }
+              
+            break;
+          }
+
 	case REFFL:  /*  /\1/il  */
             _CHECK_AND_WARN_PROBLEMATIC_LOCALE;
 	    folder = foldEQ_locale;

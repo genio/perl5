@@ -292,6 +292,7 @@ sub output_invmap ($$$$$$$) {
     # as the actual data structure's name.
 
     my $count = @$invmap;
+    use Data::Dumper;
 
     my $output_format;
     my $declaration_type;
@@ -304,7 +305,14 @@ sub output_invmap ($$$$$$$) {
         my $short_name = (prop_aliases($prop_name))[0] // $prop_name;
             my @enums;
             if ($orig_prop_name eq $prop_name) {
-                @enums = prop_values($prop_name);
+                foreach my $short_value_name (prop_values($prop_name)) {
+                    # Returns the long name in scalar context
+                    my $long_value_name = prop_value_aliases($prop_name, $short_value_name);
+
+                    # Some of these may not be used by Perl
+                    next unless defined $long_value_name;
+                    push @enums, $long_value_name;
+                }
             }
             else {
                 @enums = uniques(@$invmap);
@@ -314,8 +322,11 @@ sub output_invmap ($$$$$$$) {
                 die "Only enum properties are currently handled; '$prop_name' isn't one";
             }
             else {
-                my @expected_enums = @{$hard_coded_enums{lc $short_name}};
                 my @canonical_input_enums;
+
+                if (exists $hard_coded_enums{lc $short_name}) {
+                # XXX indent
+                my @expected_enums = @{$hard_coded_enums{lc $short_name}};
                 if (@expected_enums) {
                     if (@expected_enums < @enums) {
                         die 'You need to update %hard_coded_enums to reflect new'
@@ -324,14 +335,17 @@ sub output_invmap ($$$$$$$) {
                         . "     Got: " . join(", ", sort @enums);
                     }
 
-                    if (! defined prop_aliases($prop_name)) {
-
-                        # Convert the input enums into canonical form and
-                        # save for use below
-                        @canonical_input_enums = map { lc ($_ =~ s/_//gr) }
-                                                                     @enums;
-                    }
+                    @canonical_input_enums = @enums;
                     @enums = sort @expected_enums;
+                }
+                }
+
+                if (! defined prop_aliases($prop_name)) {
+
+                    # Convert the input enums into canonical form and
+                    # save for use below
+                    @canonical_input_enums = map { lc ($_ =~ s/_//gr) }
+                                                    @canonical_input_enums;
                 }
 
                 # The internal enums come last, and in the order specified
@@ -1747,6 +1761,9 @@ for my $charset (get_supported_code_pages()) {
     print $out_fh "\n" . get_conditional_compile_line_start($charset);
 
     @a2n = @{get_a2n($charset)};
+    # XXX Sort so \w\d\s are adjacent, then the other things used in the core,
+    # then everything else.
+    # We should make these global and not interpreter variables
     no warnings 'qw';
                          # Ignore non-alpha in sort
     for my $prop (sort { prop_name_for_cmp($a) cmp prop_name_for_cmp($b) } qw(
@@ -1778,7 +1795,10 @@ for my $charset (get_supported_code_pages()) {
                              _Perl_LB,EDGE
                              _Perl_SB,EDGE
                              _Perl_WB,EDGE,UNKNOWN
+                             Script
                            )
+                             #Numeric_Type
+                             #General_Category
     ) {
 
         # For the Latin1 properties, we change to use the eXtended version of the
@@ -1943,7 +1963,7 @@ for my $charset (get_supported_code_pages()) {
                     # will be converted back later (using a vertical tab as
                     # the separator).  Even if the mapping is to code points,
                     # we don't translate to native here because the code
-                    # output_map() calls to output these arrays assumes the
+                    # output_invmap() calls to output these arrays assumes the
                     # input is Unicode, not native.
                     if (ref $invmap[0]) {
                         $bucket = join "\cK", @{$invmap[0]};

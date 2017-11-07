@@ -705,6 +705,8 @@ will be lost.
                             unicode rules for non-utf8, no mixing ASCII,
                             non-ASCII
 
+ REFSR           num 1      Match a script run
+
  # Support for long RE
  LONGJMP         off 1 1    Jump far away.
  BRANCHJ         off 1 1    BRANCH with long offset.

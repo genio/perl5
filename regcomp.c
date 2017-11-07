@@ -12733,6 +12733,12 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
 	    *flagp |= SIMPLE;
 	    RExC_seen_zerolen++;		/* Do not optimize RE away */
 	    goto finish_meta_pat;
+	case 'M':
+            /* in regcomp, if are in the middle of one of these, and encounter a nested one, ignore the nesting, as the outer one overrides things */
+	    ret = reganode(pRExC_state, REFSR, RExC_npar - 1);
+	    *flagp |= SIMPLE;
+	    RExC_seen_zerolen++;		/* Do not optimize RE away */
+	    goto finish_meta_pat;
 	case 'C':
 	    vFAIL("\\C no longer supported");
 	case 'X':
@@ -13289,6 +13295,7 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
                     case 'X':             /* eXtended Unicode "combining
                                              character sequence" */
 		    case 'z': case 'Z':   /* End of line/string assertion */
+                    case 'M':
 			--p;
 			goto loopdone;
 
