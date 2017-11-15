@@ -370,29 +370,88 @@ UTF-8 invariant, this function does not change the contents of C<*ep>.
 
 =cut
 
-XXX On ASCII machines this could be sped up by doing word-at-a-time operations
-
 */
 
 PERL_STATIC_INLINE bool
-S_is_utf8_invariant_string_loc(const U8* const s, const STRLEN len, const U8 ** ep)
+S_is_utf8_invariant_string_loc(const U8* const s, STRLEN len, const U8 ** ep)
 {
-    const U8* const send = s + (len ? len : strlen((const char *)s));
+    const U8* send;
     const U8* x = s;
 
     PERL_ARGS_ASSERT_IS_UTF8_INVARIANT_STRING_LOC;
 
+    if (len == 0) {
+        len = strlen((const char *)s);
+    }
+
+    send = s + len;
+
+#ifndef EBCDIC
+    /* Try to get the widest word on this platform */
+#  ifdef HAS_LONG_LONG
+#    define WORDCAST unsigned long long
+#    define WORDSIZE LONGLONGSIZE
+#  else
+#    define WORDCAST UV
+#    define WORDSIZE UVSIZE
+#  endif
+
+#  if WORDSIZE == 4
+#    define VARIANTS_WORD_MASK 0x80808080
+#    define WORD_BOUNDARY_MASK 0x3
+#  elif WORDSIZE == 8
+#    define VARIANTS_WORD_MASK 0x8080808080808080
+#    define WORD_BOUNDARY_MASK 0x7
+#  else
+#    error Unexpected word size
+#  endif
+
+    /* Process per-byte until reach word boundary.  XXX This loop could be
+     * eliminated if we knew that this platform had fast unaligned reads */
+    while (x < send && (PTR2nat(x) & WORD_BOUNDARY_MASK)) {
+        if (! UTF8_IS_INVARIANT(*x)) {
+            if (ep) {
+                *ep = x;
+            }
+
+            return FALSE;
+        }
+        x++;
+    }
+
+    /* Process per-word as long as we have at least a full word left */
+    while (x + WORDSIZE <= send) {
+        if ((* (WORDCAST *) x) & VARIANTS_WORD_MASK)  {
+
+            /* Found a variant.  Just return if caller doesn't want its exact
+             * position */
+            if (! ep) {
+                return FALSE;
+            }
+
+            /* Otherwise fall into final loop to find which byte it is */
+            break;
+        }
+        x += WORDSIZE;
+    }
+
+#  undef WORDCAST
+#  undef WORDSIZE
+#  undef WORD_BOUNDARY_MASK
+#  undef VARIANTS_WORD_MASK
+#endif
+
+    /* Process per-byte */
     while (x < send) {
-	if (UTF8_IS_INVARIANT(*x)) {
-            x++;
-            continue;
+	if (! UTF8_IS_INVARIANT(*x)) {
+            if (ep) {
+                *ep = x;
+            }
+
+            return FALSE;
         }
 
-        if (ep) {
-            *ep = x;
-        }
-
-        return FALSE;
+        x++;
     }
 
     return TRUE;
